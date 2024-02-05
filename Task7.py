@@ -80,50 +80,66 @@ class Puzzle():
                 self.__SymbolsLeft = int(f.readline().rstrip())
         except:
             print("Puzzle not loaded")
+#######################################################################
+    def __UndoPerviousMove(self):
+        OldCell, NewCell, row, column = self.__Moves.Pop()
+        Index = (self.__GridSize - row) * self.__GridSize + column - 1
+        self.__Grid[Index] = OldCell
 
-    def UndoPreviousMove(self):
-        pass
+    def CloneCell(self, symbol, symbolsNotAllowed): # Duplicates the cell that will be replaced
+        Clone = Cell()
+        Clone.ChangeSymbolInCell(symbol)
+        for x in symbolsNotAllowed:
+            Clone.AddToNotAllowedSymbols(x)
+        return Clone
 
-    def __getCoords(self):
-        Row = -1
-        Valid = False
-        while not Valid:
-            try:
-                Row = int(input("Enter row number: "))
-                Valid = True
-            except:
-                pass
-        Column = -1
-        Valid = False
-        while not Valid:
-            try:
-                Column = int(input("Enter column number: "))
-                Valid = True
-            except:
-                pass
-        return Row, Column
-
+#######################################################################
+            
     def AttemptPuzzle(self):
         Finished = False
         while not Finished:
             self.DisplayPuzzle()
             print("Current score: " + str(self.__Score))
-            undo = str(input("Undo last move? (y/n)")).lower()
-            if undo == "y" and not self.__Moves.isEmpty():
-                Row, Column = self.__getCoords()
-            else:
-                Row, Column = self.__getCoords()
-                Symbol = self.__GetSymbolFromUser()
-                self.__SymbolsLeft -= 1
-                CurrentCell = self.__GetCell(Row, Column)
-                if CurrentCell.CheckSymbolAllowed(Symbol):
-                    CurrentCell.ChangeSymbolInCell(Symbol)
-                    self.__Moves.add(CurrentCell)                
-                    AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
-                    if AmountToAddToScore > 0:
-                        self.__Score += AmountToAddToScore
-                if self.__SymbolsLeft == 0:
-                    Finished = True
+
+            #######################################################################
+            if not self.__Moves.isEmpty(): # IF there are moves to undo it will run 
+                undo = str(input("Undo last move? (y/n)")).lower()
+                if undo == "y":
+                    self.__UndoPerviousMove()
+                    self.DisplayPuzzle()
+                    print("Current score: " + str(self.__Score))
+            #######################################################################
+            
+            Row = -1
+            Valid = False
+            while not Valid:
+                try:
+                    Row = int(input("Enter row number: "))
+                    Valid = True
+                except:
+                    pass
+            Column = -1
+            Valid = False
+            while not Valid:
+                try:
+                    Column = int(input("Enter column number: "))
+                    Valid = True
+                except:
+                    pass
+                    
+            Symbol = self.__GetSymbolFromUser()
+            self.__SymbolsLeft -= 1
+            CurrentCell = self.__GetCell(Row, Column)
+            if CurrentCell.CheckSymbolAllowed(Symbol):
+                OldCell = self.CloneCell(CurrentCell.GetSymbol(), CurrentCell.GetSymbolsNotAllowed()) #Creates a copy of the cell
+                CurrentCell.ChangeSymbolInCell(Symbol)
+                AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
+                self.__Moves.Add(OldCell, CurrentCell, Row, Column) # Saves data about the change
+                if AmountToAddToScore > 0:
+                    self.__Score += AmountToAddToScore
+                
+            if self.__SymbolsLeft == 0:
+                Finished = True
         print()
         self.DisplayPuzzle()
         print()
@@ -195,6 +211,30 @@ class Puzzle():
                 print("|")
                 print(self.__CreateHorizontalLine())
 
+#######################################################################
+class PreviousMove():
+    def __init__(self):
+        self.__MoveStack = []
+
+    def Add(self, OldCell, NewCell, row, column):
+        self.__MoveStack.append((OldCell, NewCell, row, column))
+
+    def Pop(self):
+        MoveData = self.__MoveStack.pop(-1)
+        OldCell = MoveData[0]
+        NewCell = MoveData[1]
+        row = MoveData[2]
+        column = MoveData[3]
+
+        return OldCell, NewCell, row, column
+
+    def isEmpty(self):
+        if len(self.__MoveStack) == 0:
+            return True
+        else:
+            return False
+#######################################################################
+
 class Pattern():
     def __init__(self, SymbolToUse, PatternString):
         self.__Symbol = SymbolToUse
@@ -224,7 +264,11 @@ class Cell():
           return "-"
         else:
           return self._Symbol
-    
+    #######################################################################
+    def GetSymbolsNotAllowed(self):
+        return self.__SymbolsNotAllowed
+    #######################################################################
+
     def IsEmpty(self):
         if len(self._Symbol) == 0:
             return True
@@ -243,33 +287,8 @@ class Cell():
     def AddToNotAllowedSymbols(self, SymbolToAdd):
         self.__SymbolsNotAllowed.append(SymbolToAdd)
 
-    def GetCellData(self):
-        return self.__Symbol, self.__SymbolsNotAllowed
-    
-    def UpdateCell(self, Symbol, SymbolNotAllowed):
+    def UpdateCell(self):
         pass
-
-class PreviousMove():
-    def __init__(self):
-        self.__CellStack = []
-
-    def Add(self, cell, row, column):
-        self.__CellStack.append((cell, row, column))
-
-    def Pop(self):
-        cellData = self.__CellStack.pop(0)
-        cell = cellData[0]
-        row = cellData[1]
-        column = cellData[2]
-        
-        return cell, row, column
-
-    def isEmpty(self):
-        if len(self.__CellStack) == 0:
-            return True
-        else:
-            return False
-        
 
 class BlockedCell(Cell):
     def __init__(self):
