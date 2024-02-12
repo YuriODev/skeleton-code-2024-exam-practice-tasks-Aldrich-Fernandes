@@ -79,7 +79,8 @@ class Puzzle():
                 self.__SymbolsLeft = int(f.readline().rstrip())
         except:
             print("Puzzle not loaded")
-
+            
+    #-----------------------------------------------------------------------#
     def __ReShuffleBlockedCells(self):
         count = 0
         for index, cell in enumerate(self.__Grid):
@@ -98,7 +99,7 @@ class Puzzle():
                     self.__Grid[Index] = BlockedCell()
                     count -= 1
         print(count)
-        
+        #-----------------------------------------------------------------------#
     def AttemptPuzzle(self):
         Finished = False
         while not Finished:
@@ -128,10 +129,12 @@ class Puzzle():
                 AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
                 if AmountToAddToScore > 0:
                     self.__Score += AmountToAddToScore
-
+#-----------------------------------------------------------------------#
+                    self.DisplayPuzzle()
                     reShuffle = input("Do you want to re-shuffle blocked cells? (y/n):").lower()
                     if reShuffle == "y":
                         self.__ReShuffleBlockedCells()
+#-----------------------------------------------------------------------#
             if self.__SymbolsLeft == 0:
                 Finished = True
         print()
@@ -234,13 +237,13 @@ class Cell():
           return "-"
         else:
           return self._Symbol
-
+    #-----------------------------------------------------------------------#
     def CheckPreviouslyBlocked(self):
         if "@" in self.__SymbolsNotAllowed:
             return True
         else:
             return False
-
+    #-----------------------------------------------------------------------#
     def IsEmpty(self):
         if len(self._Symbol) == 0:
             return True
