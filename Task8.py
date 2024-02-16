@@ -86,8 +86,8 @@ class Puzzle():
         for index, cell in enumerate(self.__Grid):
             if cell.GetSymbol() == "@":
                 count += 1
-                cell.AddToNotAllowedSymbols("@")
                 self.__Grid[index] = Cell()
+                self.__Grid[index].AddToNotAllowedSymbols("@")
                 
         while count != 0:
             Row = random.randint(1, self.__GridSize)
