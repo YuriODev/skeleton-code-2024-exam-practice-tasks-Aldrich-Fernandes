@@ -127,42 +127,43 @@ class Puzzle():
         for StartRow in range(Row + 2, Row - 1, -1):
             for StartColumn in range(Column - 2, Column + 1):
                 try:
-                    PatternList = []
-                    PatternList.append(self.__GetCell(StartRow, StartColumn))
-                    PatternList.append(self.__GetCell(StartRow, StartColumn + 1))
-                    PatternList.append(self.__GetCell(StartRow, StartColumn + 2))
-                    PatternList.append(self.__GetCell(StartRow - 1, StartColumn + 2))
-                    PatternList.append(self.__GetCell(StartRow - 2, StartColumn + 2))
-                    PatternList.append(self.__GetCell(StartRow - 2, StartColumn + 1))
-                    PatternList.append(self.__GetCell(StartRow - 2, StartColumn))
-                    PatternList.append(self.__GetCell(StartRow - 1, StartColumn))
-                    PatternList.append(self.__GetCell(StartRow - 1, StartColumn + 1))
-
                     PatternString = ""
-                    for C in PatternList:
-                        PatternString += C.GetSymbol()
-                    
+                    PatternString += self.__GetCell(StartRow, StartColumn).GetSymbol()
+                    PatternString += self.__GetCell(StartRow, StartColumn + 1).GetSymbol()
+                    PatternString += self.__GetCell(StartRow, StartColumn + 2).GetSymbol()
+                    PatternString += self.__GetCell(StartRow - 1, StartColumn + 2).GetSymbol()
+                    PatternString += self.__GetCell(StartRow - 2, StartColumn + 2).GetSymbol()
+                    PatternString += self.__GetCell(StartRow - 2, StartColumn + 1).GetSymbol()
+                    PatternString += self.__GetCell(StartRow - 2, StartColumn).GetSymbol()
+                    PatternString += self.__GetCell(StartRow - 1, StartColumn).GetSymbol()
+                    PatternString += self.__GetCell(StartRow - 1, StartColumn + 1).GetSymbol()
                     for P in self.__AllowedPatterns:
                         CurrentSymbol = self.__GetCell(Row, Column).GetSymbol()
-                        verify = 0
                         if P.MatchesPattern(PatternString, CurrentSymbol):
+                            #-----------------------------------------------------------------------#
+                            # Create a alist of cells in the matched pattern
+                            cells = []
+                            cells.append(self.__GetCell(StartRow, StartColumn))
+                            cells.append(self.__GetCell(StartRow, StartColumn + 1))
+                            cells.append(self.__GetCell(StartRow, StartColumn + 2))
+                            cells.append(self.__GetCell(StartRow - 1, StartColumn + 2))
+                            cells.append(self.__GetCell(StartRow - 2, StartColumn + 2))
+                            cells.append(self.__GetCell(StartRow - 2, StartColumn + 1))
+                            cells.append(self.__GetCell(StartRow - 2, StartColumn))
+                            cells.append(self.__GetCell(StartRow - 1, StartColumn))
+                            cells.append(self.__GetCell(StartRow - 1, StartColumn + 1))
 
-                            verify = sum([1 if Cell.CheckSymbolAllowed(CurrentSymbol) else 0 for Cell in PatternList])
+                            # Check if the symbol in the cell is allowed.
+                            # The symbol of a cell is only part of it's notallowed list if it is matched.
+                            for cell in cells: 
+                                if not cell.CheckSymbolAllowed(CurrentSymbol):
+                                    return 0
 
-                            if verify > 0 :
-                                print("Symbol not allowed in this cell.")
-                                return 0
-                            else:
-                                self.__GetCell(StartRow, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
-                                self.__GetCell(StartRow, StartColumn + 1).AddToNotAllowedSymbols(CurrentSymbol)
-                                self.__GetCell(StartRow, StartColumn + 2).AddToNotAllowedSymbols(CurrentSymbol)
-                                self.__GetCell(StartRow - 1, StartColumn + 2).AddToNotAllowedSymbols(CurrentSymbol)
-                                self.__GetCell(StartRow - 2, StartColumn + 2).AddToNotAllowedSymbols(CurrentSymbol)
-                                self.__GetCell(StartRow - 2, StartColumn + 1).AddToNotAllowedSymbols(CurrentSymbol)
-                                self.__GetCell(StartRow - 2, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
-                                self.__GetCell(StartRow - 1, StartColumn).AddToNotAllowedSymbols(CurrentSymbol)
-                                self.__GetCell(StartRow - 1, StartColumn + 1).AddToNotAllowedSymbols(CurrentSymbol)
-                                return 10
+                            for cell in cells:
+                                cell.AddToNotAllowedSymbols(CurrentSymbol)
+                            return 10
+                            #-----------------------------------------------------------------------#
+                            
                 except:
                     pass
         return 0
@@ -224,7 +225,7 @@ class Cell():
           return "-"
         else:
           return self._Symbol
-    
+
     def IsEmpty(self):
         if len(self._Symbol) == 0:
             return True
