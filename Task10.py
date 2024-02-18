@@ -80,36 +80,6 @@ class Puzzle():
         except:
             print("Puzzle not loaded")
 
-    #-----------------------------------------------------------------------#
-    # This is not neccesasy. I though you would need to call this multiple times. You dont.
-    def __getCoords(self):
-        Row = -1
-        Valid = False
-        while not Valid:
-            try:
-                Row = int(input("Enter row number: "))
-                if Row >= 1 and Row <= self.__GridSize: # Checks if valid input
-                    Valid = True
-                else:
-                    print("Out of bounds row number.")
-            except:
-                print("Invalid format.")
-
-        Column = -1
-        Valid = False
-        while not Valid:
-            try:
-                Column = int(input("Enter column number: "))
-                if Column >= 1 and Column <= self.__GridSize:
-                    Valid = True
-                else:
-                    print("Out of bounds column number.")
-            except:
-                print("Invalid format.")
-
-        return Row, Column
-        #-----------------------------------------------------------------------#
-    
     def AttemptPuzzle(self):
         Finished = False
         while not Finished:
@@ -119,7 +89,30 @@ class Puzzle():
             #-----------------------------------------------------------------------# 
             valid = False
             while not valid:
-                Row, Column = self.__getCoords()                  
+                Row = -1
+                Valid = False
+                while not Valid:
+                    try:
+                        Row = int(input("Enter row number: "))
+                        if Row >= 1 and Row <= self.__GridSize: # Checks if valid input
+                            Valid = True
+                        else:
+                            print("Out of bounds row number.")
+                    except:
+                        print("Invalid format.")
+
+                Column = -1
+                Valid = False
+                while not Valid:
+                    try:
+                        Column = int(input("Enter column number: "))
+                        if Column >= 1 and Column <= self.__GridSize:
+                            Valid = True
+                        else:
+                            print("Out of bounds column number.")
+                    except:
+                        print("Invalid format.")
+                        
                 Symbol = self.__GetSymbolFromUser()
                 CurrentCell = self.__GetCell(Row, Column) # was previously after self.__SymbolsLeft -= 1
                 if not CurrentCell.CheckSymbolAllowed(Symbol): # If symbol in a matched 3x3
