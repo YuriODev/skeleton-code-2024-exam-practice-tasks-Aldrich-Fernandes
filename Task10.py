@@ -80,30 +80,57 @@ class Puzzle():
         except:
             print("Puzzle not loaded")
 
+    #-----------------------------------------------------------------------#
+    # This is not neccesasy. I though you would need to call this multiple times. You dont.
+    def __getCoords(self):
+        Row = -1
+        Valid = False
+        while not Valid:
+            try:
+                Row = int(input("Enter row number: "))
+                if Row >= 1 and Row <= self.__GridSize: # Checks if valid input
+                    Valid = True
+                else:
+                    print("Out of bounds row number.")
+            except:
+                print("Invalid format.")
+
+        Column = -1
+        Valid = False
+        while not Valid:
+            try:
+                Column = int(input("Enter column number: "))
+                if Column >= 1 and Column <= self.__GridSize:
+                    Valid = True
+                else:
+                    print("Out of bounds column number.")
+            except:
+                print("Invalid format.")
+
+        return Row, Column
+        #-----------------------------------------------------------------------#
+    
     def AttemptPuzzle(self):
         Finished = False
         while not Finished:
             self.DisplayPuzzle()
             print("Current score: " + str(self.__Score))
-            Row = -1
-            Valid = False
-            while not Valid:
-                try:
-                    Row = int(input("Enter row number: "))
-                    Valid = True
-                except:
-                    pass
-            Column = -1
-            Valid = False
-            while not Valid:
-                try:
-                    Column = int(input("Enter column number: "))
-                    Valid = True
-                except:
-                    pass
-            Symbol = self.__GetSymbolFromUser()
+
+            #-----------------------------------------------------------------------# 
+            valid = False
+            while not valid:
+                Row, Column = self.__getCoords()                  
+                Symbol = self.__GetSymbolFromUser()
+                CurrentCell = self.__GetCell(Row, Column) # was previously after self.__SymbolsLeft -= 1
+                if not CurrentCell.CheckSymbolAllowed(Symbol): # If symbol in a matched 3x3
+                    print("This symbol is not allowed due to matched pattern.")
+                elif CurrentCell.IsMatched(): # Same symbol in matched pattern
+                    print("This cell is part of a matched pattern")
+                else:
+                    valid = True
+            #-----------------------------------------------------------------------#
+            
             self.__SymbolsLeft -= 1
-            CurrentCell = self.__GetCell(Row, Column)
             if CurrentCell.CheckSymbolAllowed(Symbol):
                 CurrentCell.ChangeSymbolInCell(Symbol)
                 AmountToAddToScore = self.CheckforMatchWithPattern(Row, Column)
@@ -217,7 +244,14 @@ class Cell():
             return True
         else:
             return False
-
+    #-----------------------------------------------------------------------#
+    def IsMatched(self):
+        if self.CheckSymbolAllowed(self._Symbol):
+            return False
+        else:
+            return True
+    #-----------------------------------------------------------------------#
+    
     def ChangeSymbolInCell(self, NewSymbol):
         self._Symbol = NewSymbol
 

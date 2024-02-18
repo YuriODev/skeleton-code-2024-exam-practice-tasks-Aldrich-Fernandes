@@ -98,7 +98,6 @@ class Puzzle():
                     Index = (self.__GridSize - Row) * self.__GridSize + Column - 1
                     self.__Grid[Index] = BlockedCell()
                     count -= 1
-        print(count)
         #-----------------------------------------------------------------------#
     def AttemptPuzzle(self):
         Finished = False
